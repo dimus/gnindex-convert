@@ -1,0 +1,16 @@
+/.bundle/
+/.yardoc
+/Gemfile.lock
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+output.csv
+.vim.custom
+t
+t.csv
+gn_crossmap-*.gem
+.byebug_history
+.nvimlog
