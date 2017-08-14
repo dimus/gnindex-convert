@@ -1,3 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'mysql2', '~> 0.3.17'
+gem "trollop"
+gem "dbi"
+gem "dbd-jdbc"
+gem "jdbc-mysql"

@@ -1,6 +1,24 @@
-require 'mysql'
-require 'migrator/dump'
+require 'java'
+
+require 'rubygems'
+require 'dbi'
+require 'dbd/Jdbc'
+require 'jdbc/mysql'
+require 'json'
+require 'csv'
+require_relative 'migrator/config'
+require_relative 'migrator/dumper'
+require_relative 'gnparser-assembly-0.4.1.jar'
+
+java_import "org.globalnames.parser.ScientificNameParser"
 
 # Migrates data from GNI to GNINDEX
 module Migrator
+  class << self
+    def run(opts)
+      puts opts
+      gni_dumper = Dumper.new
+      gni_dumper.run
+    end
+  end
 end

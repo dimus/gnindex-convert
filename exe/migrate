@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'trollop'
+require_relative '../lib/migrator'
+
+opts = Trollop.options do
+  banner 'Imports data from GNI database to GNINDEX database'
+
+  opt(:skip_created, 'If given, it skips existing CSVs', type: :boolean)
+end
+
+Migrator.run(opts)
+

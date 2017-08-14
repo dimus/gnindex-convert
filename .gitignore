@@ -9,8 +9,8 @@
 output.csv
 .vim.custom
 t
-t.csv
 gn_crossmap-*.gem
+*csv
 .byebug_history
 .nvimlog
 config.json

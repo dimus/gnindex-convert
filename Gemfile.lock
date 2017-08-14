@@ -1,13 +1,22 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    mysql2 (0.3.21)
+    dbd-jdbc (0.1.4)
+    dbi (0.4.5)
+      deprecated (= 2.0.1)
+    deprecated (2.0.1)
+    jdbc-mysql (5.1.42)
+    trollop (2.1.2)
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
-  mysql2 (~> 0.3.17)
+  dbd-jdbc
+  dbi
+  jdbc-mysql
+  trollop
 
 BUNDLED WITH
    1.15.3
