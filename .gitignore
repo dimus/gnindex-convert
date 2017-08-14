@@ -1,6 +1,5 @@
 /.bundle/
 /.yardoc
-/Gemfile.lock
 /_yardoc/
 /coverage/
 /doc/
@@ -14,3 +13,4 @@ t.csv
 gn_crossmap-*.gem
 .byebug_history
 .nvimlog
+config.json
