@@ -17,6 +17,7 @@ module Migrator
       prepare_data_sources
       prepare_name_strings
       prepare_name_string_indices
+      revisit_name_string_indices
       prepare_vernacular_strings
       prepare_vernacular_string_indices
     end
@@ -51,8 +52,8 @@ module Migrator
     def prepare_name_strings
       processing_title("name_strings and Co")
       offset = 0
-      limit = 10000
-      while offset < 10_000 # 26_000_000
+      limit = 100_000
+      while offset < 26_000_000
         puts "name_strings rows so far: #{offset}"
         res = @db.execute "SELECT name, surrogate, id
                            FROM name_strings
@@ -79,6 +80,7 @@ module Migrator
         canonical_uuid = UuidGenerator.generate(canonical)
       end
       @redis.set("ns:" + row[2], id)
+      @redis.set("uu:" + id, name)
       [id, name, canonical_uuid, canonical, surrogate]
     end
 
@@ -106,8 +108,8 @@ module Migrator
     def prepare_name_string_indices
       processing_title("name_string_indices")
       offset = 0
-      limit = 10000
-      while offset < 10_000 # 51_200_000
+      limit = 100_000
+      while offset < 51_200_000
         puts "name_string_indices rows so far: #{offset}"
         res = @db.execute "SELECT data_source_id, name_string_id,
                            url, taxon_id, global_id, local_id,
@@ -124,9 +126,42 @@ module Migrator
         end
         res.finish
       end
+      @name_string_indices.close
+    end
+
+    def revisit_name_string_indices
+      puts
+      puts "*" * 50
+      puts "Adding fields to name_string_indices"
+      name_string_indices_tmp_file = File.expand_path(File.join(__dir__, '..',
+                                          '..', 'csv',
+                                          'name_string_indices_tmp.csv'))
+      @name_string_indices_tmp = CSV.open(name_string_indices_tmp_file)
+      name_string_indices_file = File.expand_path(File.join(__dir__, '..',
+                                          '..', 'csv',
+                                          'name_string_indices.csv'))
+      @name_string_indices = CSV.open(name_string_indices_file, "w:utf-8")
+
+      @name_string_indices_tmp.each_with_index do |row, i|
+        if i.zero?
+          @name_string_indices << row
+        else
+          data_source_id = row[0]
+          accepted_taxon_id = row[8]
+          accepted_name_uuid = @redis.get(
+            "i:#{data_source_id}-#{accepted_taxon_id}"
+          )
+          accepted_name = @redis.get("uu:" + accepted_name_uuid)
+          @name_string_indices << row[0...-2] +
+            [accepted_name_uuid, accepted_name]
+        end
+      end
+
     end
 
     def entry_name_string_indices(row)
+      uuid = @redis.get("ns:" + row[1])
+      @redis.set("i:#{row[0]}-#{row[3]}", uuid)
       [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],
        row[9], row[10], row[11], nil, nil]
     end
@@ -200,7 +235,7 @@ module Migrator
 
       name_string_indices_file = File.expand_path(File.join(__dir__, '..',
                                           '..', 'csv',
-                                          'name_string_indices.csv'))
+                                          'name_string_indices_tmp.csv'))
       @name_string_indices = CSV.open(name_string_indices_file, "w:utf-8")
       @name_string_indices << %w[data_source_id name_string_id
                                  url taxon_id global_id local_id
