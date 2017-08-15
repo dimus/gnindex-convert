@@ -6,6 +6,7 @@ GEM
       deprecated (= 2.0.1)
     deprecated (2.0.1)
     jdbc-mysql (5.1.42)
+    redis (3.3.3)
     trollop (2.1.2)
 
 PLATFORMS
@@ -16,6 +17,7 @@ DEPENDENCIES
   dbd-jdbc
   dbi
   jdbc-mysql
+  redis
   trollop
 
 BUNDLED WITH
