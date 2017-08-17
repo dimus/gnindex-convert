@@ -44,6 +44,7 @@ module Migrator
     end
 
     def prepare_data_sources
+      processing_title("data_sources")
       init_data_sources
       res = @db.execute "SELECT id, title, description,
                            logo_url, web_site_url, data_url,
@@ -75,11 +76,12 @@ module Migrator
       init_name_strings__year
       offset = 0
       limit = 100_000
-      while offset < 26_000_000
+      loop do
         puts "name_strings rows so far: #{offset}"
-        res = @db.execute "SELECT name, surrogate, id
+        res = @db.execute "SELECT name, id
                            FROM name_strings
                            limit #{limit} offset #{offset}"
+        break if res.fetch.nil?
         offset += limit
         until (row = res.fetch).nil?
           entry = entry_name_strings(row)
@@ -98,17 +100,18 @@ module Migrator
 
     def entry_name_strings(row)
       name = row[0]
-      surrogate = row[1]
       parsed = JSON.parse(@snp.fromString(name).renderCompactJson,
                           symbolize_names: true)
       id = parsed[:name_string_id]
       canonical = canonical_uuid = nil
+      surrogate = false
       if parsed[:parsed]
         add_words(parsed[:positions], id, name)
         canonical = parsed[:canonical_name][:value]
+        surrogate = parsed[:surrogate]
         canonical_uuid = UuidGenerator.generate(canonical)
       end
-      @redis.set('ns:' + row[2], id)
+      @redis.set('ns:' + row[1], id)
       @redis.set('uu:' + id, name)
       [id, name, canonical_uuid, canonical, surrogate]
     end
@@ -139,7 +142,7 @@ module Migrator
       processing_title('name_string_indices')
       offset = 0
       limit = 100_000
-      while offset < 51_200_000
+      loop do
         puts "name_string_indices rows so far: #{offset}"
         res = @db.execute "SELECT data_source_id, name_string_id,
                            url, taxon_id, global_id, local_id,
@@ -149,6 +152,7 @@ module Migrator
                            classification_path_ranks
                            FROM name_string_indices
                            limit #{limit} offset #{offset}"
+        break if res.fetch.nil?
         offset += limit
         until (row = res.fetch).nil?
           entry = entry_name_string_indices(row)
@@ -195,11 +199,12 @@ module Migrator
       init_vernacular_strings
       offset = 0
       limit = 100_000
-      while offset < 1_200_000
+      loop do
         puts "vernacular_strings rows so far: #{offset}"
         res = @db.execute "SELECT id, name
                            FROM vernacular_strings
                            limit #{limit} offset #{offset}"
+        break if res.fetch.nil?
         offset += limit
         until (row = res.fetch).nil?
           entry = entry_vernacular(row)
@@ -221,13 +226,14 @@ module Migrator
       init_vernacular_string_indices
       offset = 0
       limit = 100_000
-      while offset < 2_500_000
+      loop do
         puts "vernacular_strings_indices rows so far: #{offset}"
         res = @db.execute "SELECT data_source_id, taxon_id,
                            vernacular_string_id, language, locality,
                            country_code
                            FROM vernacular_string_indices
                            limit #{limit} offset #{offset}"
+        break if res.fetch.nil?
         offset += limit
         until (row = res.fetch).nil?
           entry = entry_vernacular_indices(row)
