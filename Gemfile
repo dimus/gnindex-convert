@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
-gem "trollop"
-gem "dbi"
-gem "dbd-jdbc"
-gem "jdbc-mysql"
-gem "redis"
+gem 'dbd-jdbc'
+gem 'dbi'
+gem 'jdbc-mysql'
+gem 'redis'
+gem 'trollop'

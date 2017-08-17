@@ -11,6 +11,8 @@ output.csv
 t
 gn_crossmap-*.gem
 *csv
+*log
+*zip
 .byebug_history
 .nvimlog
 config.json

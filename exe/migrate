@@ -11,4 +11,3 @@ opts = Trollop.options do
 end
 
 Migrator.run(opts)
-
