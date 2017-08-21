@@ -99,7 +99,7 @@ module Migrator
     end
 
     def entry_name_strings(row)
-      name = row[0]
+      name = row[0].delete("\u{0000}")
       parsed = JSON.parse(@snp.fromString(name).renderCompactJson,
                           symbolize_names: true)
       id = parsed[:name_string_id]
