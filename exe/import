@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+
+if [[ ! ${DB_HOST:?Requires DB_HOST} \
+   || ! ${DB_USERNAME:?Requires DB_USERNAME} \
+   || ! ${DB_PASSWORD:?Requires DB_PASSWORD} ]]; then
+  exit 1
+fi
+
+dir=$(dirname ${BASH_SOURCE[0]})
+
+delete_indexes="${dir}/../sql/gnindex_delete_indexes.sql"
+create_indexes="${dir}/../sql/gnindex_create_indexes.sql"
+db=gnindex
+tables=(data_sources)
+
+# Remove indexes
+PGPASSWORD=${DB_PASSWORD} psql -U ${DB_USERNAME} -h ${DB_HOST} -d ${db} < ${delete_indexes}
+
+# Import data
+for table in tables
+do
+  echo ${table}
+done
