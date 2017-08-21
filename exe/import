@@ -16,8 +16,8 @@ create_indexes="${dir}/../sql/gnindex_create_indexes.sql"
 db=gnindex
 declare -a tables=(
                 data_sources
-                # name_string_indices
-                # name_strings
+                name_string_indices
+                name_strings
                 name_strings__author_words
                 name_strings__genus
                 name_strings__species
@@ -33,19 +33,27 @@ function sql {
 }
 
 function sql_file {
-  PGPASSWORD=${DB_PASSWORD} psql -U ${DB_USERNAME} -h ${DB_HOST} -d ${db} < $1 2> /dev/null
+  PGPASSWORD=${DB_PASSWORD} psql -U ${DB_USERNAME} -h ${DB_HOST} -d ${db} < $1 # 2> /dev/null
+}
+
+function timestamp {
+  echo Time: $(date +"%H:%M:%S")
 }
 
 # Remove indexes
+timestamp
 sql_file ${delete_indexes}
 
 # Import data
 for table in ${tables[@]}
 do
+  timestamp
   echo "Processing ${table}"
   sql "TRUNCATE TABLE ${table}"
   sql "\COPY ${table} FROM '${csv_dir}${table}.csv' WITH (FORMAT csv, HEADER)"
 done
 
 # Recreate indexes
+timestamp
 sql_file ${create_indexes}
+timestamp
