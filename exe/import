@@ -9,17 +9,43 @@ if [[ ! ${DB_HOST:?Requires DB_HOST} \
 fi
 
 dir=$(dirname ${BASH_SOURCE[0]})
+csv_dir="${dir}/../csv/"
 
 delete_indexes="${dir}/../sql/gnindex_delete_indexes.sql"
 create_indexes="${dir}/../sql/gnindex_create_indexes.sql"
 db=gnindex
-tables=(data_sources)
+declare -a tables=(
+                data_sources
+                # name_string_indices
+                # name_strings
+                name_strings__author_words
+                name_strings__genus
+                name_strings__species
+                name_strings__subspecies
+                name_strings__uninomial
+                name_strings__year
+                vernacular_string_indices
+                vernacular_strings
+              );
+
+function sql {
+  PGPASSWORD=${DB_PASSWORD} psql -U ${DB_USERNAME} -h ${DB_HOST} -d ${db} -c $1 # -A -t
+}
+
+function sql_file {
+  PGPASSWORD=${DB_PASSWORD} psql -U ${DB_USERNAME} -h ${DB_HOST} -d ${db} < $1 2> /dev/null
+}
 
 # Remove indexes
-PGPASSWORD=${DB_PASSWORD} psql -U ${DB_USERNAME} -h ${DB_HOST} -d ${db} < ${delete_indexes}
+sql_file ${delete_indexes}
 
 # Import data
-for table in tables
+for table in ${tables[@]}
 do
-  echo ${table}
+  echo "Processing ${table}"
+  sql "TRUNCATE TABLE ${table}"
+  sql "\COPY ${table} FROM '${csv_dir}${table}.csv' WITH (FORMAT csv, HEADER)"
 done
+
+# Recreate indexes
+sql_file ${create_indexes}
