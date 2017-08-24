@@ -21,10 +21,10 @@ module Migrator
     def run
       prepare_data_sources
       prepare_name_strings
-      # prepare_name_string_indices
-      # revisit_name_string_indices
-      # prepare_vernacular_strings
-      # prepare_vernacular_string_indices
+      prepare_name_string_indices
+      revisit_name_string_indices
+      prepare_vernacular_strings
+      prepare_vernacular_string_indices
     end
 
     def processing_title(table)
