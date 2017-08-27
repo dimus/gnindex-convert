@@ -21,10 +21,10 @@ module Migrator
     def run
       prepare_data_sources
       prepare_name_strings
-      # prepare_name_string_indices
-      # revisit_name_string_indices
-      # prepare_vernacular_strings
-      # prepare_vernacular_string_indices
+      prepare_name_string_indices
+      revisit_name_string_indices
+      prepare_vernacular_strings
+      prepare_vernacular_string_indices
     end
 
     def processing_title(table)
@@ -179,8 +179,9 @@ module Migrator
           ) rescue nil
           accepted_name =
             @redis.get('uu:' + accepted_name_uuid) rescue nil
-          @name_string_indices << row[0...-2] +
-                                  [accepted_name_uuid, accepted_name]
+          row = row[0...-2] + [accepted_name_uuid, accepted_name]
+          row[8] = accepted_name_uuid
+          @name_string_indices << row
         end
       end
       @name_string_indices.close
