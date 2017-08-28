@@ -19,8 +19,8 @@ module Migrator
     end
 
     def run
-      prepare_data_sources
-      prepare_name_strings
+      # prepare_data_sources
+      # prepare_name_strings
       prepare_name_string_indices
       revisit_name_string_indices
       prepare_vernacular_strings
@@ -180,7 +180,7 @@ module Migrator
           accepted_name =
             @redis.get('uu:' + accepted_name_uuid) rescue nil
           row = row[0...-2] + [accepted_name_uuid, accepted_name]
-          row[8] = accepted_name_uuid
+          row[8] = accepted_taxon_id
           @name_string_indices << row
         end
       end
