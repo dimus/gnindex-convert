@@ -19,8 +19,8 @@ module Migrator
     end
 
     def run
-      # prepare_data_sources
-      # prepare_name_strings
+      prepare_data_sources
+      prepare_name_strings
       prepare_name_string_indices
       revisit_name_string_indices
       prepare_vernacular_strings
@@ -99,7 +99,7 @@ module Migrator
     end
 
     def entry_name_strings(row)
-      name = row[0]
+      name = row[0].delete("\u{0000}")
       parsed = JSON.parse(@snp.fromString(name).renderCompactJson,
                           symbolize_names: true)
       id = parsed[:name_string_id]
@@ -173,15 +173,14 @@ module Migrator
         else
           puts "Row for name_string_indices #{i}" if (i % 100_000).zero?
           data_source_id = row[0]
-          accepted_taxon_id = row[8].to_s.strip == "" ? nil : row[8]
+          accepted_taxon_id = row[8]
           accepted_name_uuid = @redis.get(
             "i:#{data_source_id}-#{accepted_taxon_id}"
           ) rescue nil
           accepted_name =
             @redis.get('uu:' + accepted_name_uuid) rescue nil
-          row = row[0...-2] + [accepted_name_uuid, accepted_name]
-          row[8] = accepted_taxon_id
-          @name_string_indices << row
+          @name_string_indices << row[0...-2] +
+                                  [accepted_name_uuid, accepted_name]
         end
       end
       @name_string_indices.close
