@@ -8,6 +8,8 @@ GEM
     jdbc-mysql (5.1.42)
     redis (3.3.3)
     trollop (2.1.2)
+    unicode (0.4.4.4)
+    unicode (0.4.4.4-java)
 
 PLATFORMS
   java
@@ -19,6 +21,7 @@ DEPENDENCIES
   jdbc-mysql
   redis
   trollop
+  unicode
 
 BUNDLED WITH
-   1.15.3
+   1.15.4

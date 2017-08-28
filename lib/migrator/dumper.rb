@@ -119,7 +119,7 @@ module Migrator
     def add_words(pos, id, name)
       pos.each do |e|
         word = name[e[1]...e[2]]
-        entry = [word, id]
+        entry = [Unicode.upcase(word), id]
         case e[0]
         when 'uninomial'
           @uninomial << entry
@@ -132,7 +132,7 @@ module Migrator
         when 'author_word'
           @author << entry
         when 'year'
-          @year << entry
+          @year << entry if entry[0].to_i.between?(1753,2019)
         end
       end
     end
